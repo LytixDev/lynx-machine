@@ -64,21 +64,23 @@ When an immediate is used as the operand it takes up the entire four bit space o
 
 ### Table
 
+>opcode temporary!
+
 | Mnemonic | Opcode | Operand Kind     | Semantics                          |
 |----------|--------|------------------|------------------------------------|
 | Halt     | 0000   | None             | Halts execution                    |
-| Add      | 0000   | Reg Reg          | r0 = op1 + op2                     |
-| Sub      | 0000   | Reg Reg          | r0 = op1 - op2                     |
-| Inc      | 0000   | Reg              | op1 = op1 + 1                      |
-| Dec      | 0000   | Reg              | op1 = op1 - 1                      |
-| Shift    | 0000   | Imm              | r0 = r0 << imm with some nuance    |
-| Ali      | 0000   | Imm              | r0 = r0 & imm                      |
-| li       | 0000   | Imm              | r0 = imm                           |
-| Mv       | 0000   | Reg Reg          | op1 = op2                          |
-| Load     | 0000   | Reg Reg          | op1 = mem\[op2\]                   |
-| Store    | 0000   | Reg Reg          | mem\[op1\] = op2                   |
-| Jmp      | 0000   | Imm              | pc = imm                           |
-| Jiz      | 0000   | Reg Reg          | if op1 = 0 then pc = pc + op2      |
+| Add      | 0001   | Reg Reg          | r0 = op1 + op2                     |
+| Sub      | 0010   | Reg Reg          | r0 = op1 - op2                     |
+| Inc      | 0011   | Reg              | op1 = op1 + 1                      |
+| Dec      | 0100   | Reg              | op1 = op1 - 1                      |
+| Shift    | 0101   | Imm              | r0 = r0 << imm with some nuance    |
+| Ali      | 0110   | Imm              | r0 = r0 & imm                      |
+| li       | 0111   | Imm              | r0 = imm                           |
+| Mv       | 1000   | Reg Reg          | op1 = op2                          |
+| Load     | 1001   | Reg Reg          | op1 = mem\[op2\]                   |
+| Store    | 1010   | Reg Reg          | mem\[op2\] = op1                   |
+| Jmp      | 1011   | Imm              | pc = imm                           |
+| Jiz      | 1100   | Reg Reg          | if op2 = 0 then pc = pc + op1      |
 </pre
     >
   </body>

@@ -54,6 +54,6 @@ When an immediate is used as the operand it takes up the entire four bit space o
 | li       | 0000   | Imm              | r0 = imm                           |
 | Mv       | 0000   | Reg Reg          | op1 = op2                          |
 | Load     | 0000   | Reg Reg          | op1 = mem\[op2\]                   |
-| Store    | 0000   | Reg Reg          | mem\[op1\] = op2                   |
+| Store    | 0000   | Reg Reg          | mem\[op2\] = op1                   |
 | Jmp      | 0000   | Imm              | pc = imm                           |
-| Jiz      | 0000   | Reg Reg          | if op1 = 0 then pc = pc + op2      |
+| Jiz      | 0000   | Reg Reg          | if op2 = 0 then pc = pc + op1      |
