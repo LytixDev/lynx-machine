@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>The Lynx Machine</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <h1>The Lynx 8-bit Machine</h1>
+    <nav style="margin-bottom: 1em; text-align: center">
+      <a
+        href="spec.html"
+        style="color: #2a7ab9; text-decoration: underline; font-size: 1.1em"
+        >View Spec</a
+      >
+    </nav>
+
+    <div class="main-grid">
+      <div class="top-row">
+        <div class="pc-box">
+          <div class="vm-controls">
+            <div class="vm-main-buttons">
+              <button id="start-btn">Start</button>
+              <button id="step-btn">Step</button>
+              <button id="reset-btn">Reset</button>
+            </div>
+            <div class="speed-controls">
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: flex-start;
+                  width: 100%;
+                "
+              >
+                <label for="speed-input" style="margin-bottom: 4px"
+                  >Cycles per second</label
+                >
+                <div
+                  style="
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    width: 100%;
+                    gap: 8px;
+                  "
+                >
+                  <button id="speed-decrease">-</button>
+                  <input type="number" id="speed-input" min="1" value="1" />
+                  <button id="speed-increase">+</button>
+                </div>
+              </div>
+            </div>
+            <button id="display-toggle">Decimal</button>
+          </div>
+          <div class="registers-visualization" id="registers-visualization">
+            <!-- Registers will be rendered here by JS -->
+          </div>
+          <div
+            id="disassembly-container"
+            style="width: 100%; max-width: 650px; margin: 0 auto"
+          >
+            <p
+              id="current-disassembly"
+              style="
+                margin-top: 18px;
+                text-align: center;
+                color: #00ff00;
+                font-family: monospace;
+                font-size: 1.2em;
+              "
+            ></p>
+          </div>
+        </div>
+        <div class="assembly-box">
+          <div class="assembly-header">
+            <label>Assembly Input:</label>
+            <button id="assembly-submit">Assemble!</button>
+          </div>
+          <div class="assembly-input-wrapper">
+            <div class="line-numbers" id="line-numbers"></div>
+            <textarea
+              id="assembly-input"
+              spellcheck="false"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+            >
+#set 0 9
+#set 1 5
+
+li 0
+load r1 r0
+add  r1 r2
+mv   r2 r0
+li    2
+store r2 r0
+
+
+jmp 2
+jmp -7
+
+
+li 3
+load r3 r0
+inc r3
+store r3 r0
+
+li 1
+load r0 r0
+
+jmp 2
+jmp -8
+
+sub r0 r3
+mv r3 r0
+li 2
+jiz r0 r3
+
+jmp -5
+halt</textarea
+            >
+          </div>
+          <div
+            id="assembler-errors"
+            style="color: #ff3333; font-family: monospace; margin-top: 8px"
+          ></div>
+        </div>
+      </div>
+
+      <div class="bottom-row">
+        <div class="grid-container">
+          <div class="grid-title">Instructions</div>
+          <div id="instructions-grid" class="byte-grid"></div>
+        </div>
+        <div class="grid-container">
+          <div class="grid-title">Data</div>
+          <div id="data-grid" class="byte-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- compiled from src/ by running `npx tsc` -->
+    <script src="dist/isa.js"></script>
+    <script src="dist/assembler.js"></script>
+    <script src="dist/vm.js"></script>
+    <script src="dist/renderer.js"></script>
+  </body>
+  <footer
+    style="text-align: center; margin-top: 2em; color: #888; font-size: 1em"
+  >
+    Made by Nicolai Brand,
+    <a
+      href="https://lytix.dev"
+      target="_blank"
+      style="color: #2a7ab9; text-decoration: underline"
+      >lytix.dev</a
+    >, 2025
+  </footer>
+</html>

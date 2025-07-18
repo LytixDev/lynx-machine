@@ -1,0 +1,36 @@
+Web Impl TODOS:
+- Assembler: support labels
+
+- Assembler/ISA: more fine-grained imm operand kinds (imm_u8, imm_s8, imm_u4, imm_s4)
+  Useful for checking if the imm is within bounds when assembling
+
+- jiz should be pc-relative or not? Currently pc-relative.
+
+- binary addition to the numberSystem? Displaying 8 zeros/ones in a small space is hard.
+
+- amalgamate / packing script of the compiled JS files
+
+- Add more examples
+    - fib
+    - gcd
+    - prime number generator
+    - integer factorization
+    - game of life ?!?!
+
+- Add an 8-character LCD display?
+
+- savable and url-linkable programs
+
+- simple compiler for a simple B-like langauge
+  One step further: B integeration? https://github.com/tsoding/b
+
+- Example page
+
+- Spec page
+
+- About page
+
+- BUG: assembly input field on scroll must cause a re-render
+
+- pseudo op `lfi` which can take a full 8 bit imm and will
+  result in a li ms 4-bits, shift 4, and ali of the 4 ls bits
