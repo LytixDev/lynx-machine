@@ -1,6 +1,6 @@
 # The Lynx Abstract Machine Specification
 
->This document is work in progress
+>This document is work in progress!
 
 The Lynx Abstract machine is a specification for a "true" 8-bit machine. By "true" 8-bit we informally mean that all components from the registers, data bus, address bus, ALU and to the instruction set are exactly 8 bits wide. It therefore follows that the Lynx Abstract Machine is only able to perform 8-bit arithmetic while being able to address just 256 bytes of memory. Lynx is a primitive machine able to achieve simple computations. The motivation behind the project is to explore what a machine with the previously mentioned constraints would look like and experiment with the possible computational problems it is able to express.
 
@@ -41,19 +41,21 @@ When an immediate is used as the operand it takes up the entire four bit space o
 
 
 ### Table
-
-| Mnemonic | Opcode | Operand Kind     | Semantics                          |
-|----------|--------|------------------|------------------------------------|
-| Halt     | 0000   | None             | Halts execution                    |
-| Add      | 0000   | Reg Reg          | r0 = op1 + op2                     |
-| Sub      | 0000   | Reg Reg          | r0 = op1 - op2                     |
-| Inc      | 0000   | Reg              | op1 = op1 + 1                      |
-| Dec      | 0000   | Reg              | op1 = op1 - 1                      |
-| Shift    | 0000   | Imm              | r0 = r0 << imm with some nuance    |
-| Ali      | 0000   | Imm              | r0 = r0 & imm                      |
-| li       | 0000   | Imm              | r0 = imm                           |
-| Mv       | 0000   | Reg Reg          | op1 = op2                          |
-| Load     | 0000   | Reg Reg          | op1 = mem\[op2\]                   |
-| Store    | 0000   | Reg Reg          | mem\[op2\] = op1                   |
-| Jmp      | 0000   | Imm              | pc = imm                           |
-| Jiz      | 0000   | Reg Reg          | if op2 = 0 then pc = pc + op1      |
+| Mnemonic | Opcode | Operand Kind | Semantics                         |
+| -------- | ------ | ------------ | --------------------------------- |
+| halt     | 0000   | None         | Halts execution                   |
+| add      | 0001   | Reg Reg      | r0 = op1 + op2                    |
+| sub      | 0010   | Reg Reg      | r0 = op1 - op2                    |
+| ge       | 0011   | Reg Reg      | r0 = op1 > op2 (1 if true else 0) |
+| le       | 0100   | Reg Reg      | r0 = op1 < op2 (1 if true else 0) |
+| inc      | 0101   | Reg          | op1 = op1 + 1                     |
+| dec      | 0110   | Reg          | op1 = op1 - 1                     |
+| shift    | 0111   | Imm          | r0 = r0 << imm with some nuance   |
+| ali      | 1000   | Imm          | r0 = r0 & imm                     |
+| li       | 1001   | Imm          | r0 = imm                          |
+| mv       | 1010   | Reg Reg      | op1 = op2                         |
+| load     | 1011   | Reg Reg      | op1 = mem$op2$                    |
+| store    | 1100   | Reg Reg      | mem$op2$ = op1                    |
+| jmp      | 1101   | Imm          | pc = imm                          |
+| jiz      | 1110   | Reg Reg      | if op2 = 0 then pc = pc + op1     |
+| jaiz     | 1111   | Reg Reg      | if op2 = 0 then pc = op1          |

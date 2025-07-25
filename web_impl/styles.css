@@ -510,7 +510,6 @@ pre {
   .grid-container,
   .assembly-box,
   .pc-box {
-    max-width: 650px;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
