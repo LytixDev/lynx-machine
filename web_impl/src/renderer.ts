@@ -356,6 +356,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       updateLineNumbers();
     });
+
+    if (window.ResizeObserver) {
+      const resizeObserver = new ResizeObserver(() => {
+        updateLineNumbers();
+      });
+      resizeObserver.observe(assemblyInput);
+    }
+
     updateLineNumbers();
   }
 
@@ -425,15 +433,19 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("load-example-btn")?.addEventListener("click", () => {
-    const selector = document.getElementById("example-selector") as HTMLSelectElement;
-    const assemblyInput = document.getElementById("assembly-input") as HTMLTextAreaElement;
-    
+    const selector = document.getElementById(
+      "example-selector"
+    ) as HTMLSelectElement;
+    const assemblyInput = document.getElementById(
+      "assembly-input"
+    ) as HTMLTextAreaElement;
+
     if (selector.value === "fib") {
       assemblyInput.value = fibExample;
     } else if (selector.value === "sieve") {
       assemblyInput.value = sieveExample;
     }
-    
+
     updateLineNumbers();
   });
 });

@@ -310,6 +310,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             updateLineNumbers();
         });
+        if (window.ResizeObserver) {
+            const resizeObserver = new ResizeObserver(() => {
+                updateLineNumbers();
+            });
+            resizeObserver.observe(assemblyInput);
+        }
         updateLineNumbers();
     }
     // CPU clock rate
