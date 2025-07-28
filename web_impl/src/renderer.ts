@@ -423,4 +423,17 @@ document.addEventListener("DOMContentLoaded", () => {
     lynxMachine.cyclesExecuted = 0;
     render();
   });
+
+  document.getElementById("load-example-btn")?.addEventListener("click", () => {
+    const selector = document.getElementById("example-selector") as HTMLSelectElement;
+    const assemblyInput = document.getElementById("assembly-input") as HTMLTextAreaElement;
+    
+    if (selector.value === "fib") {
+      assemblyInput.value = fibExample;
+    } else if (selector.value === "sieve") {
+      assemblyInput.value = sieveExample;
+    }
+    
+    updateLineNumbers();
+  });
 });

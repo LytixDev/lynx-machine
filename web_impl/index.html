@@ -79,7 +79,23 @@
         <div class="assembly-box">
           <div class="assembly-header">
             <label>Assembly Input:</label>
-            <button id="assembly-submit">Assemble!</button>
+            <div style="display: flex; gap: 8px; align-items: center">
+              <select
+                id="example-selector"
+                style="
+                  padding: 8px;
+                  font-family: inherit;
+                  background: var(--retro-input-bg);
+                  border: 1px solid var(--retro-border);
+                "
+              >
+                <option value="">Select example:</option>
+                <option value="fib">Recursive Fibonacci</option>
+                <option value="sieve">Sieve of Eratosthenes</option>
+              </select>
+              <button id="load-example-btn">Load Example</button>
+              <button id="assembly-submit">Assemble!</button>
+            </div>
           </div>
           <div class="assembly-input-wrapper">
             <div class="line-numbers" id="line-numbers"></div>
@@ -90,32 +106,7 @@
               autocorrect="off"
               autocapitalize="off"
             >
-// initialize fib(0) and fib(1)
-#set 0x00 0x00
-#set 0x01 0x01
-
-li 2
-mv r1 r0
-
-// fib procedure start
-// r1 -> the number in the sequence to calculate
-// r2 -> the result
-mv r3 r1
-dec r3
-load r2 r3
-dec r3
-load r0 r3
-add r0 r2
-
-// trampoline
-jmp 2
-jmp -7
-
-store r0 r1
-inc r1
-
-jmp -3</textarea
-            >
+          </textarea>
           </div>
           <div
             id="assembler-errors"
@@ -141,6 +132,8 @@ jmp -3</textarea
     <script src="dist/assembler.js"></script>
     <script src="dist/vm.js"></script>
     <script src="dist/renderer.js"></script>
+    <script src="dist/examples/fib.js"></script>
+    <script src="dist/examples/sieve.js"></script>
   </body>
   <footer
     style="text-align: center; margin-top: 2em; color: #888; font-size: 1em"

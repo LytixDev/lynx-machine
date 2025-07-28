@@ -273,7 +273,7 @@ function render() {
 // Initialize everyting then the document loads
 // TODO: Better way to do this?
 document.addEventListener("DOMContentLoaded", () => {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     // Initial render. render() must be manually called whenever any relevant state changes
     render();
     // Add event listeners
@@ -373,5 +373,16 @@ document.addEventListener("DOMContentLoaded", () => {
         lynxMachine.data.set(lynxMachine.initialDataCopy);
         lynxMachine.cyclesExecuted = 0;
         render();
+    });
+    (_e = document.getElementById("load-example-btn")) === null || _e === void 0 ? void 0 : _e.addEventListener("click", () => {
+        const selector = document.getElementById("example-selector");
+        const assemblyInput = document.getElementById("assembly-input");
+        if (selector.value === "fib") {
+            assemblyInput.value = fibExample;
+        }
+        else if (selector.value === "sieve") {
+            assemblyInput.value = sieveExample;
+        }
+        updateLineNumbers();
     });
 });
