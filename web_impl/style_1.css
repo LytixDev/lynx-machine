@@ -384,7 +384,7 @@ input[type="number"] {
   display: flex;
   flex-direction: row;
   gap: 12px;
-  margin-top: 32px;
+  margin-top: 20px;
   align-items: center;
   width: 100%;
 }
@@ -410,6 +410,16 @@ input[type="number"] {
 
 .vm-main-buttons button:hover {
   background: var(--dark-green);
+}
+
+/* Special styling for the start button */
+#start-btn {
+  background: #024600 !important;
+  color: white !important;
+}
+
+#start-btn:hover {
+  background: #e55a2b !important;
 }
 
 .speed-controls {
