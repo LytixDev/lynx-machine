@@ -6,7 +6,6 @@ enum InstructionKind {
   Inc,
   Dec,
   Ge,
-  Le,
   // 4 bit immdiate. If the most significant bit is 1 then right shift, else left shift.
   // Shift amount is the remainding 3 bits.
   Shift,
@@ -16,6 +15,7 @@ enum InstructionKind {
   Mv, // dest, src
   Load, // dest, src
   Store, // dest, src
+  Stpc, // store pc + 2
 
   Jmp, // 4bit jump
   Jiz, 
@@ -85,32 +85,25 @@ const InstructionInfo: Record<InstructionKind, Instruction> = {
     encoding: 5,
     is_directive: false,
   },
-  [InstructionKind.Le]: {
-    kind: InstructionKind.Le,
-    name: "le",
-    operand_kind: OperandKind.RegReg,
-    encoding: 6,
-    is_directive: false,
-  },
   [InstructionKind.Shift]: {
     kind: InstructionKind.Shift,
     name: "shift",
     operand_kind: OperandKind.Imm,
-    encoding: 7,
+    encoding: 6,
     is_directive: false,
   },
   [InstructionKind.Ali]: {
     kind: InstructionKind.Ali,
     name: "ali",
     operand_kind: OperandKind.Imm,
-    encoding: 8,
+    encoding: 7,
     is_directive: false,
   },
   [InstructionKind.Li]: {
     kind: InstructionKind.Li,
     name: "li",
     operand_kind: OperandKind.Imm,
-    encoding: 9,
+    encoding: 8,
     is_directive: false,
   },
 
@@ -118,20 +111,27 @@ const InstructionInfo: Record<InstructionKind, Instruction> = {
     kind: InstructionKind.Mv,
     name: "mv",
     operand_kind: OperandKind.RegReg,
-    encoding: 10,
+    encoding: 9,
     is_directive: false,
   },
   [InstructionKind.Load]: {
     kind: InstructionKind.Load,
     name: "load",
     operand_kind: OperandKind.RegReg,
-    encoding: 11,
+    encoding: 10,
     is_directive: false,
   },
   [InstructionKind.Store]: {
     kind: InstructionKind.Store,
     name: "store",
     operand_kind: OperandKind.RegReg,
+    encoding: 11,
+    is_directive: false,
+  },
+  [InstructionKind.Stpc]: {
+    kind: InstructionKind.Stpc,
+    name: "stpc",
+    operand_kind: OperandKind.Reg,
     encoding: 12,
     is_directive: false,
   },

@@ -69,15 +69,15 @@ When an immediate is used as the operand it takes up the entire four bit space o
 | add      | 0001   | Reg Reg      | r0 = op1 + op2                    |
 | sub      | 0010   | Reg Reg      | r0 = op1 - op2                    |
 | ge       | 0011   | Reg Reg      | r0 = op1 > op2 (1 if true else 0) |
-| le       | 0100   | Reg Reg      | r0 = op1 < op2 (1 if true else 0) |
-| inc      | 0101   | Reg          | op1 = op1 + 1                     |
-| dec      | 0110   | Reg          | op1 = op1 - 1                     |
-| shift    | 0111   | Imm          | r0 = r0 << imm with some nuance   |
-| ali      | 1000   | Imm          | r0 = r0 & imm                     |
-| li       | 1001   | Imm          | r0 = imm                          |
-| mv       | 1010   | Reg Reg      | op1 = op2                         |
-| load     | 1011   | Reg Reg      | op1 = mem$op2$                    |
-| store    | 1100   | Reg Reg      | mem$op2$ = op1                    |
+| inc      | 0100   | Reg          | op1 = op1 + 1                     |
+| dec      | 0101   | Reg          | op1 = op1 - 1                     |
+| shift    | 0110   | Imm          | r0 = r0 << imm with some nuance   |
+| ali      | 0111   | Imm          | r0 = r0 & imm                     |
+| li       | 1000   | Imm          | r0 = imm                          |
+| mv       | 1001   | Reg Reg      | op1 = op2                         |
+| load     | 1010   | Reg Reg      | op1 = mem\[op2\]                  |
+| store    | 1011   | Reg Reg      | mem\[op2\] = op1                  |
+| stpc     | 1100   | Reg          | mem\[op1\] = pc + 2               |
 | jmp      | 1101   | Imm          | pc = imm                          |
 | jiz      | 1110   | Reg Reg      | if op2 = 0 then pc = pc + op1     |
 | jaiz     | 1111   | Reg Reg      | if op2 = 0 then pc = op1          |
