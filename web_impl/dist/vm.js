@@ -121,9 +121,6 @@ function executeNextInstruction(lynxMachine) {
         case InstructionInfo[InstructionKind.Ge].encoding:
             lynxMachine.r0 = Number(lynxMachine[reg1] > lynxMachine[reg2]);
             break;
-        case InstructionInfo[InstructionKind.Le].encoding:
-            lynxMachine.r0 = Number(lynxMachine[reg1] < lynxMachine[reg2]);
-            break;
         case InstructionInfo[InstructionKind.Shift].encoding:
             const signBit = (imm & 0b1000) >> 3;
             const shiftAmount = imm & 0b0111;
@@ -150,6 +147,9 @@ function executeNextInstruction(lynxMachine) {
             break;
         case InstructionInfo[InstructionKind.Store].encoding:
             lynxMachine.data[lynxMachine[reg2]] = lynxMachine[reg1];
+            break;
+        case InstructionInfo[InstructionKind.Stpc].encoding:
+            lynxMachine.data[lynxMachine[reg1]] = lynxMachine.pc + 2;
             break;
         // Jumps
         case InstructionInfo[InstructionKind.Jmp].encoding:
