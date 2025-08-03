@@ -11,6 +11,11 @@ object Launcher {
           (c) => new AdderTests(c)
         }
       },
+      "Decoder" -> { (manager: TesterOptionsManager) =>
+        Driver.execute(() => new Decoder(), manager) {
+          (c) => new DecoderTests(c)
+        }
+      },
   )
   def main(args: Array[String]): Unit = {
     TutorialRunner("examples", examples, args)
