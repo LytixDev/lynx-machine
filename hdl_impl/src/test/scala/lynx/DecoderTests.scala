@@ -1,4 +1,4 @@
-package examples
+package lynx
 
 import chisel3.iotesters.PeekPokeTester
 

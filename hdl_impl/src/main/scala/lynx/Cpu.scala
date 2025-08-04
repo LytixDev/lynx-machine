@@ -1,5 +1,4 @@
-// See LICENSE.txt for license details.
-package examples
+package lynx
 
 import chisel3._
 

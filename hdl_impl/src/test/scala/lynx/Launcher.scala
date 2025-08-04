@@ -1,16 +1,11 @@
 // See LICENSE.txt for license details.
-package examples
+package lynx
 
 import chisel3.iotesters.{Driver, TesterOptionsManager}
 import utils.TutorialRunner
 
 object Launcher {
   val examples = Map(
-      "Adder" -> { (manager: TesterOptionsManager) =>
-        Driver.execute(() => new Adder(8), manager) {
-          (c) => new AdderTests(c)
-        }
-      },
       "Decoder" -> { (manager: TesterOptionsManager) =>
         Driver.execute(() => new Decoder(), manager) {
           (c) => new DecoderTests(c)
@@ -18,7 +13,7 @@ object Launcher {
       },
   )
   def main(args: Array[String]): Unit = {
-    TutorialRunner("examples", examples, args)
+    TutorialRunner("lynx", examples, args)
   }
 }
 
