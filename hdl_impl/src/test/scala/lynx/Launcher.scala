@@ -11,6 +11,11 @@ object Launcher {
           (c) => new DecoderTests(c)
         }
       },
+      "CPU" -> { (manager: TesterOptionsManager) =>
+        Driver.execute(() => new CPU(), manager) {
+          (c) => new CPUTests(c)
+        }
+      },
   )
   def main(args: Array[String]): Unit = {
     TutorialRunner("lynx", examples, args)

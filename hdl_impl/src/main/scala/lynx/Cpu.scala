@@ -2,16 +2,21 @@ package lynx
 
 import chisel3._
 
-// Problem:
-//
-// 'out' should be the sum of 'in0' and 'in1'
-// Adder width should be parametrized
-//
-class Adder(val w: Int) extends Module {
+class CPU() extends Module {
   val io = IO(new Bundle {
-    val in0 = Input(UInt(w.W))
-    val in1 = Input(UInt(w.W))
-    val out = Output(UInt(w.W))
+    val in0 = Input(UInt(8.W))
+    val debugOut = Output(UInt(1.W))
   })
-  io.out := io.in0 + io.in1
+
+  val PC = Wire(UInt(8.W))
+  PC := 0.U
+
+
+  val instructions = Module(new Memory)
+  instructions.io.address := PC
+
+  val decoder = Module(new Decoder)
+  decoder.io.inst := instructions.io.dataOut
+
+  io.debugOut := decoder.io.out
 }
