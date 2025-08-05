@@ -7,8 +7,9 @@ Chisel:
     - generate waveform
     - verilog simulator? verilator
 - actual todos:
-    - setting the instruction memory from the test suite
     - instruction decode
+    - complete cpu loop (decode -> execute -> update PC)
+
     - alu
     - register file
     - data memory
