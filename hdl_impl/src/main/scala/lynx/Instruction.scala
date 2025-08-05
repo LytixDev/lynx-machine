@@ -1,4 +1,4 @@
-package examples
+package lynx
 
 sealed trait OperandKind
 object OperandKind {
