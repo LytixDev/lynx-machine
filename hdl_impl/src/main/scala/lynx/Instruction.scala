@@ -1,4 +1,4 @@
-package examples
+package lynx
 
 sealed trait OperandKind
 object OperandKind {
@@ -33,7 +33,4 @@ object Instruction {
     Halt, Add, Sub, Ge, Le, Inc, Dec,
     Shift, Ali, Li, Mv, Load, Store, Jmp, Jiz, Jaiz
   )
-
-  //def fromOpcode(op: Int): Option[Instruction] =
-  //  all.find(_.opcode == op)
 }

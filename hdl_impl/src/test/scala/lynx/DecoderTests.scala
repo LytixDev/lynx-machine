@@ -1,4 +1,4 @@
-package examples
+package lynx
 
 import chisel3.iotesters.PeekPokeTester
 
@@ -8,7 +8,7 @@ class DecoderTests(c: Decoder) extends PeekPokeTester(c) {
     val fullInst = (opcode << 4) | 0x0
     poke(c.io.inst, fullInst)
     step(1)
-    expect(c.io.out, 0)
+    expect(c.io.opcode, 0)
   }
 
   {
@@ -16,6 +16,6 @@ class DecoderTests(c: Decoder) extends PeekPokeTester(c) {
     val fullInst = (opcode << 4) | 0x0
     poke(c.io.inst, fullInst)
     step(1)
-    expect(c.io.out, 1)
+    expect(c.io.opcode, 1)
   }
 }
