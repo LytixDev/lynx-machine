@@ -35,4 +35,9 @@ object Instruction {
     Halt, Add, Sub, Ge, Le, Inc, Dec,
     Shift, Ali, Li, Mv, Load, Store, Jmp, Jiz, Jaiz
   )
+  
+  val byOpcode: Array[Instruction] = Array(
+    Halt, Add, Sub, Ge, Le, Inc, Dec,
+    Shift, Ali, Li, Mv, Load, Store, Jmp, Jiz, Jaiz
+  )
 }
