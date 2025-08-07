@@ -39,6 +39,11 @@ object MachineCodeBuilder {
     }
   }
 
+  def buildFromHex(hexString: String): Array[Byte] = {
+    val cleanHex = hexString.replaceAll("\\s+", "") // Remove all whitespace
+    cleanHex.grouped(2).map(hexPair => Integer.parseInt(hexPair, 16).toByte).toArray
+  }
+
   def halt(): Byte = build(Instruction.Halt)
 
   def add(reg1: Int, reg2: Int): Byte = build(Instruction.Add, reg1, reg2)
