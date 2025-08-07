@@ -22,6 +22,7 @@ var InstructionKind;
     // Directives
     InstructionKind[InstructionKind["Set"] = 16] = "Set";
     InstructionKind[InstructionKind["SkipTo"] = 17] = "SkipTo";
+    InstructionKind[InstructionKind["PasteHex"] = 18] = "PasteHex";
 })(InstructionKind || (InstructionKind = {}));
 var OperandKind;
 (function (OperandKind) {
@@ -155,6 +156,13 @@ const InstructionInfo = {
         kind: InstructionKind.SkipTo,
         name: "skipto",
         operand_kind: OperandKind.Imm, // 8-bit immediate
+        encoding: 0, // encoding not used for directives
+        is_directive: true,
+    },
+    [InstructionKind.PasteHex]: {
+        kind: InstructionKind.PasteHex,
+        name: "paste_hex",
+        operand_kind: OperandKind.None, // Special handling for hex string
         encoding: 0, // encoding not used for directives
         is_directive: true,
     },

@@ -266,7 +266,6 @@ function updateLineNumbers() {
     lineNumbers.scrollTop = textarea.scrollTop;
 }
 function exportInstructionsToClipboard() {
-    // Convert instruction bytecode to hexadecimal format without spaces
     const hexBytes = Array.from(lynxMachine.instructions).map((byte) => byte.toString(16).padStart(2, "0").toUpperCase());
     // Find the last non-zero index
     let lastNonZeroIndex = -1;
@@ -284,7 +283,7 @@ function exportInstructionsToClipboard() {
     else {
         // Count how many trailing zeros we have after the last non-zero byte
         const totalTrailingZeros = hexBytes.length - 1 - lastNonZeroIndex;
-        // Keep up to 2 trailing zeros (for potential halt instruction)
+        // Keep one for the final halt instruction
         const zerosToKeep = Math.min(totalTrailingZeros, 1);
         const finalIndex = lastNonZeroIndex + zerosToKeep;
         // Create final hex string without spaces
