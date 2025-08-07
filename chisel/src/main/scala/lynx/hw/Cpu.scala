@@ -1,19 +1,16 @@
-package lynx
+package lynx.hw
 
 import chisel3._
 
-class CPU(val program: Seq[Int]) extends Module {
+class Cpu(val program: Seq[Int]) extends Module {
   val io = IO(new Bundle {
     val in0 = Input(UInt(8.W))
     val debugOut = Output(UInt(8.W))
   })
 
-  val PC = Wire(UInt(8.W))
-  PC := 0.U
+  val PC = WireInit(0.U(8.W))
 
-
-  //val instructions = Module(new Memory)
-  val instructions = Module(new ProgramROM(program))
+  val instructions = Module(new Memory)
   instructions.io.address := PC
 
   val decoder = Module(new Decoder)
