@@ -24,6 +24,7 @@ enum InstructionKind {
   // Directives
   Set,
   SkipTo,
+  PasteHex,
 }
 
 enum OperandKind {
@@ -170,6 +171,13 @@ const InstructionInfo: Record<InstructionKind, Instruction> = {
     kind: InstructionKind.SkipTo,
     name: "skipto",
     operand_kind: OperandKind.Imm, // 8-bit immediate
+    encoding: 0, // encoding not used for directives
+    is_directive: true,
+  },
+  [InstructionKind.PasteHex]: {
+    kind: InstructionKind.PasteHex,
+    name: "paste_hex",
+    operand_kind: OperandKind.None, // Special handling for hex string
     encoding: 0, // encoding not used for directives
     is_directive: true,
   },
