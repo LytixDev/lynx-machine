@@ -300,6 +300,64 @@ function updateLineNumbers() {
   lineNumbers.scrollTop = textarea.scrollTop;
 }
 
+function exportInstructionsToClipboard() {
+  const hexBytes = Array.from(lynxMachine.instructions).map((byte) =>
+    byte.toString(16).padStart(2, "0").toUpperCase()
+  );
+
+  // Find the last non-zero index
+  let lastNonZeroIndex = -1;
+  for (let i = hexBytes.length - 1; i >= 0; i--) {
+    if (hexBytes[i] !== "00") {
+      lastNonZeroIndex = i;
+      break;
+    }
+  }
+
+  let hexInstructions: string;
+
+  // If there are no non-zero bytes, export just "00"
+  if (lastNonZeroIndex === -1) {
+    hexInstructions = "00";
+  } else {
+    // Count how many trailing zeros we have after the last non-zero byte
+    const totalTrailingZeros = hexBytes.length - 1 - lastNonZeroIndex;
+    // Keep one for the final halt instruction
+    const zerosToKeep = Math.min(totalTrailingZeros, 1);
+    const finalIndex = lastNonZeroIndex + zerosToKeep;
+    // Create final hex string without spaces
+    hexInstructions = hexBytes.slice(0, finalIndex + 1).join("");
+  }
+
+  // Copy to clipboard
+  navigator.clipboard
+    .writeText(hexInstructions)
+    .then(() => {
+      // Visual feedback - temporarily change button text
+      const exportBtn = document.getElementById(
+        "export-instructions-btn"
+      ) as HTMLButtonElement;
+      if (exportBtn) {
+        const originalText = exportBtn.textContent;
+        exportBtn.textContent = "Copied!";
+        exportBtn.style.backgroundColor = "var(--retro-accent)";
+        exportBtn.style.color = "white";
+
+        setTimeout(() => {
+          exportBtn.textContent = originalText;
+          exportBtn.style.backgroundColor = "";
+          exportBtn.style.color = "";
+        }, 1000);
+      }
+    })
+    .catch((err) => {
+      console.error("Failed to copy instructions to clipboard: ", err);
+      alert(
+        "Failed to copy to clipboard. Make sure your browser supports clipboard access."
+      );
+    });
+}
+
 function render(): void {
   renderRegisters();
   renderByteArray(lynxMachine.instructions, "instructions-grid");
@@ -448,4 +506,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateLineNumbers();
   });
+
+  // Export instructions button event listener
+  document
+    .getElementById("export-instructions-btn")
+    ?.addEventListener("click", exportInstructionsToClipboard);
 });

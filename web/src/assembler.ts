@@ -168,6 +168,46 @@ function encodeInstruction(ass: Assembler, first: Token, ops: Token[]): void {
   ass.instructionLen = (ass.instructionLen as number) + 1;
 }
 
+function handlePasteHexDirective(ass: Assembler): void {
+  // Skip any remaining whitespace after #paste_hex
+  while (ass.pos < ass.inputLen && /[ \t]/.test(ass.input[ass.pos])) {
+    ass.pos++;
+  }
+  
+  // Get the rest of the line as hex string
+  const hexString = ass.input.slice(ass.pos).trim();
+  
+  if (hexString.length === 0) {
+    assReportError(ass, "#paste_hex requires hex data");
+    return;
+  }
+  
+  // Validate that it's valid hex (only 0-9, A-F, a-f)
+  if (!/^[0-9A-Fa-f]+$/.test(hexString)) {
+    assReportError(ass, "#paste_hex data must be valid hexadecimal characters");
+    return;
+  }
+  
+  // Must be even length (pairs of hex digits)
+  if (hexString.length % 2 !== 0) {
+    assReportError(ass, "#paste_hex data must have even number of hex characters");
+    return;
+  }
+  
+  // Convert hex string to bytes and write to instruction stream
+  for (let i = 0; i < hexString.length; i += 2) {
+    if (ass.instructionLen >= 256) {
+      assReportError(ass, "Instruction memory overflow - maximum 256 bytes");
+      return;
+    }
+    
+    const hexByte = hexString.slice(i, i + 2);
+    const byteValue = parseInt(hexByte, 16);
+    ass.instructionStream[ass.instructionLen] = byteValue;
+    ass.instructionLen++;
+  }
+}
+
 function handleDirective(ass: Assembler, first: Token, ops: Token[]): void {
   // TODO: This is purely to make the typechekcer happy
   if (first.type !== TokenType.Instruction) return;
@@ -191,6 +231,11 @@ function handleDirective(ass: Assembler, first: Token, ops: Token[]): void {
       ass.initialData[ops[0].value] = ops[1].value;
       break;
     }
+    case InstructionKind.PasteHex: {
+      // Special handling for paste_hex - consume rest of line as hex string
+      handlePasteHexDirective(ass);
+      break;
+    }
   }
 }
 
@@ -208,6 +253,12 @@ function parseAndAssembleLine(ass: Assembler): void {
         mnemonic ? mnemonic.lexeme : ""
       }'`
     );
+    return;
+  }
+
+  // Special handling for #paste_hex directive
+  if (mnemonic.value.is_directive && mnemonic.value.kind === InstructionKind.PasteHex) {
+    handleDirective(ass, mnemonic, []);
     return;
   }
 
