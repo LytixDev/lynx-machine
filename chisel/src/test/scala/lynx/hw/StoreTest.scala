@@ -3,58 +3,51 @@ package lynx.hw
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
-import lynx.sw.{LynxMachine, MachineCodeBuilder}
+import lynx.sw.MachineCodeBuilder
 
 class StoreTest extends AnyFlatSpec with ChiselScalatestTester {
   
-  "CPU" should "handle store operations correctly using hardware-software comparison" in {
-    // Test program: store a value to memory 
+  "CPU" should "handle store operations correctly" in {
     val program = Array[Byte](
-      MachineCodeBuilder.li(10), // address
+      MachineCodeBuilder.li(10),
       MachineCodeBuilder.mv(1, 0),
-      MachineCodeBuilder.li(7), // data
+      MachineCodeBuilder.li(7),
       MachineCodeBuilder.store(0, 1),
       MachineCodeBuilder.halt()
     )
 
     test(new Cpu()).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      // Initialize software VM for comparison
-      val vm = LynxMachine(
-        instructions = program,
-        data = Array.fill[Byte](256)(0),
-        pc = 0,
-        registers = Array.fill[Byte](4)(0),
-        cyclesExecuted = 0
-      )
+      val tester = new HardwareSoftwareTester(dut)
+      val cycles = tester.testProgram(program)
+      println(s"Store test completed successfully in $cycles cycles")
+    }
+  }
+
+  "CPU" should "handle store and load together" in {
+    // Test program: comprehensive store and load operations
+    val program = Array[Byte](
+      // Store 42 at memory[8]
+      MachineCodeBuilder.li(8),
+      MachineCodeBuilder.mv(1, 0),
+      MachineCodeBuilder.li(42),
+      MachineCodeBuilder.store(0, 1),
       
-      val comparator = new HardwareSoftwareComparator(dut, vm)
+      // Load it back
+      MachineCodeBuilder.load(0, 1),     // r0 = mem[8] = 42
       
-      // Load program into hardware
-      dut.io.loadMode.poke(true.B)
-      for ((instruction, address) <- program.zipWithIndex) {
-        dut.io.loadAddress.poke(address.U)
-        dut.io.loadData.poke((instruction & 0xFF).U)
-        dut.clock.step(1)
-      }
+      // Store the loaded value at a new location
+      MachineCodeBuilder.li(12),
+      MachineCodeBuilder.mv(2, 0),
+      MachineCodeBuilder.load(0, 1),
+      MachineCodeBuilder.store(0, 2),
       
-      // Switch to execution mode - no head start needed with combinational memory
-      dut.io.loadMode.poke(false.B)
-      
-      // Run both implementations cycle by cycle  
-      var cycle = 0
-      var halted = false
-      while (!halted && cycle < 10) {
-        halted = comparator.stepBoth()
-        
-        if (!halted) {
-          comparator.assertStateEqual(cycle)
-        }
-        
-        cycle += 1
-      }
-      
-      // If we reach here, both hardware and software produced identical results
-      println(s"Store test completed successfully after $cycle cycles")
+      MachineCodeBuilder.halt()
+    )
+
+    test(new Cpu()) { dut =>
+      val tester = new HardwareSoftwareTester(dut)
+      val cycles = tester.testProgram(program)
+      println(s"Store and load test completed successfully in $cycles cycles")
     }
   }
 }

@@ -3,59 +3,25 @@ package lynx.hw
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
-import lynx.sw.{LynxMachine, MachineCodeBuilder}
+import lynx.sw.MachineCodeBuilder
 
 class LoadTest extends AnyFlatSpec with ChiselScalatestTester {
   
-  "CPU" should "handle load operations correctly using hardware-software comparison" in {
-    // Test program: store a value, then load it back
+  "CPU" should "handle load operations correctly" in {
     val program = Array[Byte](
-      MachineCodeBuilder.li(10), // address
+      MachineCodeBuilder.li(10),
       MachineCodeBuilder.mv(1, 0),
-      MachineCodeBuilder.li(42), // data
+      MachineCodeBuilder.li(42),
       MachineCodeBuilder.store(0, 1),
-      MachineCodeBuilder.li(0),
       MachineCodeBuilder.load(0, 1),
       MachineCodeBuilder.halt()
     )
 
     test(new Cpu()).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      // Initialize software VM for comparison
-      val vm = LynxMachine(
-        instructions = program,
-        data = Array.fill[Byte](256)(0),
-        pc = 0,
-        registers = Array.fill[Byte](4)(0),
-        cyclesExecuted = 0
-      )
-      
-      val comparator = new HardwareSoftwareComparator(dut, vm)
-      
-      // Load program into hardware
-      dut.io.loadMode.poke(true.B)
-      for ((instruction, address) <- program.zipWithIndex) {
-        dut.io.loadAddress.poke(address.U)
-        dut.io.loadData.poke((instruction & 0xFF).U)
-        dut.clock.step(1)
-      }
-      
-      dut.io.loadMode.poke(false.B)
-      
-      // Run both implementations cycle by cycle
-      var cycle = 0
-      var halted = false
-      while (!halted && cycle < 10) {
-        halted = comparator.stepBoth()
-        
-        if (!halted) {
-          comparator.assertStateEqual(cycle)
-        }
-        
-        cycle += 1
-      }
-      
-      // If we reach here, both hardware and software produced identical results
-      println(s"Load test completed successfully after $cycle cycles")
+      val tester = new HardwareSoftwareTester(dut)
+      val cycles = tester.testProgram(program)
+      println(s"Load test completed successfully in $cycles cycles")
     }
   }
+  
 }
