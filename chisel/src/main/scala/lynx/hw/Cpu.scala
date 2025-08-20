@@ -10,7 +10,7 @@ class Cpu() extends Module {
     val loadAddress = Input(UInt(8.W))
     val loadData = Input(UInt(8.W))
 
-    // Debug ports for testing - allow reading register file and data memory
+    // Debug ports for testing
     val debug = new Bundle {
       val regReadAddr = Input(UInt(2.W))
       val regReadData = Output(UInt(8.W))
@@ -26,6 +26,7 @@ class Cpu() extends Module {
   val PC = RegInit(0.U(8.W))
   val instructionMemory = Module(new Memory)
   val dataMemory = Module(new Memory)
+  val decoder = Module(new Decoder)
   val registerFile = Module(new RegisterFile)
   val registerFetch = Module(new RegisterFetch)
   val executionUnit = Module(new ExecutionUnit)
@@ -42,8 +43,9 @@ class Cpu() extends Module {
     instructionMemory.io.writeEnable := false.B
   }
 
-  val decoder = Module(new Decoder)
   decoder.io.inst := instructionMemory.io.dataOut
+  val isLoad = decoder.io.opcode === Instruction.Load.opcode.U
+  val isStore = decoder.io.opcode === Instruction.Store.opcode.U
 
   // Wires from decoder to register fetch
   // TODO: is the opcode needed?
@@ -66,19 +68,23 @@ class Cpu() extends Module {
   // Wire execution unit to writeback
   writeback.io.opcode := decoder.io.opcode
   writeback.io.reg1 := decoder.io.reg1
-  writeback.io.executionResult := executionUnit.io.result
+  writeback.io.executionResult := Mux(isLoad, dataMemory.io.dataOut, executionUnit.io.result)
+  printf("%d %d %d\n", isLoad, dataMemory.io.dataOut, writeback.io.executionResult)
 
   // Wire writeback to register file
   registerFile.io.writeAddr := writeback.io.regWriteAddr
   registerFile.io.writeData := writeback.io.regWriteData
   registerFile.io.writeEnable := writeback.io.regWriteEnable && !io.loadMode
 
-  // Simple store operation: directly connect register operands to memory
-  dataMemory.io.writeEnable := (decoder.io.opcode === Instruction.Store.opcode.U) && !io.loadMode
+  // Simple load/store operations: directly connect register operands to memory
+  
+  dataMemory.io.writeEnable := isStore && !io.loadMode
   dataMemory.io.address := Mux(io.loadMode, io.debug.dataMemReadAddr, 
-    Mux(decoder.io.opcode === Instruction.Store.opcode.U, 
-      registerFetch.io.operand2,  // store address from second register
-      0.U))
+    Mux(isLoad, 
+      registerFetch.io.operand1,  // load: address from operand1
+      Mux(isStore,
+        registerFetch.io.operand2,  // store: address from operand2  
+        0.U)))
   dataMemory.io.dataIn := registerFetch.io.operand1  // store data from first register
 
   // TODO: branching

@@ -26,6 +26,6 @@ class RegisterFile() extends Module {
     registers(io.writeAddr) := io.writeData
   }
 
-  printf("Registers: r0=%d, r1=%d, r2=%d, r3=%d\n",
-    registers(0), registers(1), registers(2), registers(3))
+  //printf("Registers: r0=%d, r1=%d, r2=%d, r3=%d\n",
+  //  registers(0), registers(1), registers(2), registers(3))
 }
