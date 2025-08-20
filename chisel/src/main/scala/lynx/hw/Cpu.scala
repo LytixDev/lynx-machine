@@ -10,14 +10,13 @@ class Cpu() extends Module {
     val loadAddress = Input(UInt(8.W))
     val loadData = Input(UInt(8.W))
 
-    // Debug ports for testing - allow reading register file and data memory
+    // Debug ports for testing
     val debug = new Bundle {
       val regReadAddr = Input(UInt(2.W))
       val regReadData = Output(UInt(8.W))
       val dataMemReadAddr = Input(UInt(8.W))
       val dataMemReadData = Output(UInt(8.W))
       val decoderOpcodeOut = Output(UInt(4.W))
-      val currentPCOut = Output(UInt(8.W))
       val nextPCOut = Output(UInt(8.W))
       val executionUnitResult = Output(UInt(8.W))
     }
@@ -26,6 +25,7 @@ class Cpu() extends Module {
   val PC = RegInit(0.U(8.W))
   val instructionMemory = Module(new Memory)
   val dataMemory = Module(new Memory)
+  val decoder = Module(new Decoder)
   val registerFile = Module(new RegisterFile)
   val registerFetch = Module(new RegisterFetch)
   val executionUnit = Module(new ExecutionUnit)
@@ -42,8 +42,12 @@ class Cpu() extends Module {
     instructionMemory.io.writeEnable := false.B
   }
 
-  val decoder = Module(new Decoder)
   decoder.io.inst := instructionMemory.io.dataOut
+  val isLoad = decoder.io.opcode === Instruction.Load.opcode.U
+  val isStore = decoder.io.opcode === Instruction.Store.opcode.U
+  val isJmp = decoder.io.opcode === Instruction.Jmp.opcode.U
+  val isJiz = decoder.io.opcode === Instruction.Jiz.opcode.U
+  val isJaiz = decoder.io.opcode === Instruction.Jaiz.opcode.U
 
   // Wires from decoder to register fetch
   // TODO: is the opcode needed?
@@ -66,30 +70,55 @@ class Cpu() extends Module {
   // Wire execution unit to writeback
   writeback.io.opcode := decoder.io.opcode
   writeback.io.reg1 := decoder.io.reg1
-  writeback.io.executionResult := executionUnit.io.result
+  writeback.io.executionResult := Mux(isLoad, dataMemory.io.dataOut, executionUnit.io.result)
 
   // Wire writeback to register file
   registerFile.io.writeAddr := writeback.io.regWriteAddr
   registerFile.io.writeData := writeback.io.regWriteData
   registerFile.io.writeEnable := writeback.io.regWriteEnable && !io.loadMode
 
-  dataMemory.io.writeEnable := (decoder.io.opcode === Instruction.Store.opcode.U) && !io.loadMode
-  dataMemory.io.address := Mux(io.loadMode, io.debug.dataMemReadAddr, 0.U)  // Use debug address when in load mode, TODO: connect to execution unit
-  dataMemory.io.dataIn := 0.U   // Will be connected to execution unit
+  // Simple load/store operations: directly connect register operands to memory
+  dataMemory.io.writeEnable := isStore && !io.loadMode
+  // Chained muxes. In the loadMode, always use the incoming debug address.
+  // For a load, use the address of the first register.
+  // For a store, use the address of the second register.
+  dataMemory.io.address := Mux(io.loadMode, io.debug.dataMemReadAddr, 
+    Mux(isLoad, 
+      registerFetch.io.operand1, // load: address from operand1
+      Mux(isStore,
+        registerFetch.io.operand2, // store: address from operand2
+        0.U)))
+  dataMemory.io.dataIn := registerFetch.io.operand1  // store data from first register
 
-  // TODO: branching
+  // Update the PC
   when(!io.loadMode) {
-    PC := PC + 1.U
+    when(isJmp) {
+      // Unconditional jump: pc = imm (which is in operand1 of the registerFetch).
+      PC := registerFetch.io.operand1
+    }.elsewhen(isJiz) {
+      // Jump if zero (relative): if op2 = 0 then pc = pc + op1. If not, its a regular increment.
+      when(registerFetch.io.operand2 === 0.U) {
+        PC := PC + registerFetch.io.operand1
+      }.otherwise {
+        PC := PC + 1.U
+      }
+    }.elsewhen(isJaiz) {
+      // Jump absolute if zero: if op2 = 0 then pc = op1
+      when(registerFetch.io.operand2 === 0.U) {
+        PC := registerFetch.io.operand1
+      }.otherwise {
+        PC := PC + 1.U
+      }
+    }.otherwise {
+      // Normal execution: increment PC
+      PC := PC + 1.U
+    }
   }
-
-  // Capture PC before increment for testing
-  val currentPC = RegNext(PC, 0.U(8.W))
 
   // Debug port connections for testing
   io.debug.regReadData := registerFile.io.readData1
   io.debug.dataMemReadData := dataMemory.io.dataOut
   io.debug.decoderOpcodeOut := decoder.io.opcode
-  io.debug.currentPCOut := currentPC
   io.debug.nextPCOut := PC
   io.debug.executionUnitResult := executionUnit.io.result
 }

@@ -11,7 +11,8 @@ class Memory() extends Module {
     val dataOut = Output(UInt(8.W))
   })
 
-  val memory = SyncReadMem(256, UInt(8.W))
+  // This kind of memory returns data in the same cycle as it is requested.
+  val memory = Mem(256, UInt(8.W))
 
   io.dataOut := memory(io.address)
 

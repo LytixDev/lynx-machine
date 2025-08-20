@@ -24,7 +24,7 @@ class RegisterFetch() extends Module {
   })
 
   // Default register file addresses
-  io.regReadAddr1 := io.reg1
+  io.regReadAddr1 := Mux(io.opcode === Instruction.Shift.opcode.U, 0.U, io.reg1)
   io.regReadAddr2 := io.reg2
 
   // Operand fetching based on instruction type
@@ -43,8 +43,8 @@ class RegisterFetch() extends Module {
     Instruction.Inc.opcode.U -> io.regReadData1,
     Instruction.Dec.opcode.U -> io.regReadData1,
     
-    // Sign extend
-    Instruction.Shift.opcode.U -> Cat(Fill(4, io.imm(3)), io.imm),
+    // For shift: operand1 = r0 value (read from register 0)
+    Instruction.Shift.opcode.U -> io.regReadData1,
     // These automatically zero-extend
     Instruction.Ali.opcode.U -> io.imm,
     Instruction.Li.opcode.U -> io.imm,
@@ -61,6 +61,8 @@ class RegisterFetch() extends Module {
     Instruction.Load.opcode.U -> io.regReadData1, // destination reg1
     Instruction.Store.opcode.U -> io.regReadData2,
     Instruction.Jiz.opcode.U -> io.regReadData2,
-    Instruction.Jaiz.opcode.U -> io.regReadData2
+    Instruction.Jaiz.opcode.U -> io.regReadData2,
+    // For shift: operand2 = immediate value (sign-extended)
+    Instruction.Shift.opcode.U -> Cat(Fill(4, io.imm(3)), io.imm)
   ))
 }
