@@ -39,9 +39,7 @@ class LoadTest extends AnyFlatSpec with ChiselScalatestTester {
         dut.clock.step(1)
       }
       
-      // Switch to execution mode and give hardware head start
       dut.io.loadMode.poke(false.B)
-      dut.clock.step(1)
       
       // Run both implementations cycle by cycle
       var cycle = 0

@@ -17,7 +17,7 @@ class CpuTest extends AnyFlatSpec with ChiselScalatestTester {
       // Expect 8 in r0
     )
 
-    val expectedCycles = 6
+    val expectedCycles = 5  // One cycle faster with combinational memory
 
     test(new Cpu()).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       // Load the program
@@ -37,7 +37,7 @@ class CpuTest extends AnyFlatSpec with ChiselScalatestTester {
 
       // Run until halt
       while(dut.io.debug.decoderOpcodeOut.peek().litValue != Instruction.Halt.opcode && cycles < expectedCycles + 10) {
-        val pc = dut.io.debug.currentPCOut.peek().litValue.toInt
+        val pc = dut.io.debug.nextPCOut.peek().litValue.toInt
         val expectedInstruction = program(pc)
         val expectedOpcode = (expectedInstruction >> 4) & 0xF
         val actualOpcode = dut.io.debug.decoderOpcodeOut.peek().litValue
@@ -50,12 +50,7 @@ class CpuTest extends AnyFlatSpec with ChiselScalatestTester {
       }
 
       assert(cycles == expectedCycles, s"Expected $expectedCycles cycles, but got $cycles")
-      
       // Check final result: r0 should contain 8 (5 + 3)
-      // Use register file read port to peek r0
-      // dut.registerFile.io.readAddr1.poke(0.U) // Read r0
-      // val r0Value = dut.registerFile.io.readData1.peek().litValue
-      // assert(r0Value == 8, s"Expected r0 to be 8, but got $r0Value")
     }
   }
 }

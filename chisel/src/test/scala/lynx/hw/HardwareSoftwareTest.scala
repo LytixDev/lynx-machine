@@ -8,8 +8,8 @@ import lynx.sw.{LynxMachine, MachineCodeBuilder}
 class HardwareSoftwareComparator(dut: Cpu, vm: LynxMachine) {
   
   def assertStateEqual(cycle: Int): Unit = {
-    // Compare PC
-    val hwPC = dut.io.debug.currentPCOut.peek().litValue.toInt
+    // Compare PC - with combinational memory, use current PC
+    val hwPC = dut.io.debug.nextPCOut.peek().litValue.toInt  
     val swPC = vm.pc & 0xFF
     assert(hwPC == swPC, s"Cycle $cycle: PC mismatch - HW: $hwPC, SW: $swPC")
     
@@ -86,12 +86,8 @@ class HardwareSoftwareTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.loadMode.poke(false.B)
       
       // INITIAL STATE SYNCHRONIZATION:
-      // Hardware registers update on clock edges (next cycle)
-      // Software updates immediately 
-      // Solution: Give hardware a 1-cycle head start so both show the same logical state
-      dut.clock.step(1)  // Hardware processes first instruction, registers will update
-      
-      // Now both are synchronized at cycle 0 state
+      // With combinational memory, hardware and software execute in sync
+      // No head start needed since instruction fetch is immediate
       comparator.assertStateEqual(0)
       
       var cycle = 1

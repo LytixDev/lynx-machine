@@ -37,11 +37,10 @@ class StoreTest extends AnyFlatSpec with ChiselScalatestTester {
         dut.clock.step(1)
       }
       
-      // Switch to execution mode and give hardware head start
+      // Switch to execution mode - no head start needed with combinational memory
       dut.io.loadMode.poke(false.B)
-      dut.clock.step(1)
       
-      // Run both implementations cycle by cycle
+      // Run both implementations cycle by cycle  
       var cycle = 0
       var halted = false
       while (!halted && cycle < 10) {

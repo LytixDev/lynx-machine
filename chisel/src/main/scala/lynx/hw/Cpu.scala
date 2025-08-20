@@ -17,7 +17,6 @@ class Cpu() extends Module {
       val dataMemReadAddr = Input(UInt(8.W))
       val dataMemReadData = Output(UInt(8.W))
       val decoderOpcodeOut = Output(UInt(4.W))
-      val currentPCOut = Output(UInt(8.W))
       val nextPCOut = Output(UInt(8.W))
       val executionUnitResult = Output(UInt(8.W))
     }
@@ -69,7 +68,6 @@ class Cpu() extends Module {
   writeback.io.opcode := decoder.io.opcode
   writeback.io.reg1 := decoder.io.reg1
   writeback.io.executionResult := Mux(isLoad, dataMemory.io.dataOut, executionUnit.io.result)
-  printf("%d %d %d\n", isLoad, dataMemory.io.dataOut, writeback.io.executionResult)
 
   // Wire writeback to register file
   registerFile.io.writeAddr := writeback.io.regWriteAddr
@@ -77,13 +75,15 @@ class Cpu() extends Module {
   registerFile.io.writeEnable := writeback.io.regWriteEnable && !io.loadMode
 
   // Simple load/store operations: directly connect register operands to memory
-  
   dataMemory.io.writeEnable := isStore && !io.loadMode
+  // Chained muxes. In the loadMode, always use the incoming debug address.
+  // For a load, use the address of the first register.
+  // For a store, use the address of the second register.
   dataMemory.io.address := Mux(io.loadMode, io.debug.dataMemReadAddr, 
     Mux(isLoad, 
-      registerFetch.io.operand1,  // load: address from operand1
+      registerFetch.io.operand1, // load: address from operand1
       Mux(isStore,
-        registerFetch.io.operand2,  // store: address from operand2  
+        registerFetch.io.operand2, // store: address from operand2
         0.U)))
   dataMemory.io.dataIn := registerFetch.io.operand1  // store data from first register
 
@@ -92,14 +92,10 @@ class Cpu() extends Module {
     PC := PC + 1.U
   }
 
-  // Capture PC before increment for testing
-  val currentPC = RegNext(PC, 0.U(8.W))
-
   // Debug port connections for testing
   io.debug.regReadData := registerFile.io.readData1
   io.debug.dataMemReadData := dataMemory.io.dataOut
   io.debug.decoderOpcodeOut := decoder.io.opcode
-  io.debug.currentPCOut := currentPC
   io.debug.nextPCOut := PC
   io.debug.executionUnitResult := executionUnit.io.result
 }
