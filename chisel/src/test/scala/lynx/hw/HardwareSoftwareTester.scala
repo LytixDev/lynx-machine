@@ -13,6 +13,7 @@ class HardwareSoftwareTester(dut: Cpu) {
   def testProgram(
     program: Array[Byte], 
     maxCycles: Int = 10_000,
+    requireHalt: Boolean = true
   ): Int = {
     // Initialize software implementation
     val vm = LynxMachine(
@@ -58,8 +59,10 @@ class HardwareSoftwareTester(dut: Cpu) {
     //}
     
     // Verify both implementations halted, and not just one of them.
-    assert(hwHalted, "Hardware should have halted")
-    assert(swHalted, "Software should have halted")
+    if (requireHalt) {
+      assert(hwHalted, "Hardware should have halted")
+      assert(swHalted, "Software should have halted")
+    }
     
     cycle
   }
@@ -94,13 +97,14 @@ object HardwareSoftwareTester {
   def testProgram(
     program: Array[Byte],
     maxCycles: Int = 10_000,
-    enableVcd: Boolean = false
+    enableVcd: Boolean = false,
+    requireHalt: Boolean = true
   )(implicit tester: ChiselScalatestTester): Int = {
     val annotations = if (enableVcd) Seq(WriteVcdAnnotation) else Seq.empty
     var result = 0
     tester.test(new Cpu()).withAnnotations(annotations) { dut =>
       val hwSwTester = new HardwareSoftwareTester(dut)
-      result = hwSwTester.testProgram(program, maxCycles)
+      result = hwSwTester.testProgram(program, maxCycles, requireHalt)
     }
     result
   }
