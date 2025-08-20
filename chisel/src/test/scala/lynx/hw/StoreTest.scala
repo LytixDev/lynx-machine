@@ -10,11 +10,10 @@ class StoreTest extends AnyFlatSpec with ChiselScalatestTester {
   "CPU" should "handle store operations correctly using hardware-software comparison" in {
     // Test program: store a value to memory 
     val program = Array[Byte](
-      MachineCodeBuilder.li(7),          // r0 = 7 (data to store)
-      MachineCodeBuilder.li(10),         // r0 = 10 (address)
-      MachineCodeBuilder.mv(1, 0),       // r1 = r0 (r1 = 10, address)
-      MachineCodeBuilder.li(7),          // r0 = 7 (restore data value)
-      MachineCodeBuilder.store(0, 1),    // mem[r1] = r0, so mem[10] = 7
+      MachineCodeBuilder.li(10), // address
+      MachineCodeBuilder.mv(1, 0),
+      MachineCodeBuilder.li(7), // data
+      MachineCodeBuilder.store(0, 1),
       MachineCodeBuilder.halt()
     )
 

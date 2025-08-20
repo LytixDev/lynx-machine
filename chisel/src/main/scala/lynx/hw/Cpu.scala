@@ -73,9 +73,13 @@ class Cpu() extends Module {
   registerFile.io.writeData := writeback.io.regWriteData
   registerFile.io.writeEnable := writeback.io.regWriteEnable && !io.loadMode
 
+  // Simple store operation: directly connect register operands to memory
   dataMemory.io.writeEnable := (decoder.io.opcode === Instruction.Store.opcode.U) && !io.loadMode
-  dataMemory.io.address := Mux(io.loadMode, io.debug.dataMemReadAddr, 0.U)  // Use debug address when in load mode, TODO: connect to execution unit
-  dataMemory.io.dataIn := 0.U   // Will be connected to execution unit
+  dataMemory.io.address := Mux(io.loadMode, io.debug.dataMemReadAddr, 
+    Mux(decoder.io.opcode === Instruction.Store.opcode.U, 
+      registerFetch.io.operand2,  // store address from second register
+      0.U))
+  dataMemory.io.dataIn := registerFetch.io.operand1  // store data from first register
 
   // TODO: branching
   when(!io.loadMode) {
