@@ -85,8 +85,6 @@ class HardwareSoftwareTest extends AnyFlatSpec with ChiselScalatestTester {
       // Verify both reached halt state
       assert(halted, s"Software VM should have halted")
       assert(dut.io.debug.decoderOpcodeOut.peek().litValue == 0, s"Hardware should be at halt instruction (opcode 0)")
-      
-      println(s"Test completed successfully after $cycle cycles")
     }
   }
 }

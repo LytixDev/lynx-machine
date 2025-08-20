@@ -45,6 +45,9 @@ class Cpu() extends Module {
   decoder.io.inst := instructionMemory.io.dataOut
   val isLoad = decoder.io.opcode === Instruction.Load.opcode.U
   val isStore = decoder.io.opcode === Instruction.Store.opcode.U
+  val isJmp = decoder.io.opcode === Instruction.Jmp.opcode.U
+  val isJiz = decoder.io.opcode === Instruction.Jiz.opcode.U
+  val isJaiz = decoder.io.opcode === Instruction.Jaiz.opcode.U
 
   // Wires from decoder to register fetch
   // TODO: is the opcode needed?
@@ -87,9 +90,29 @@ class Cpu() extends Module {
         0.U)))
   dataMemory.io.dataIn := registerFetch.io.operand1  // store data from first register
 
-  // TODO: branching
+  // Update the PC
   when(!io.loadMode) {
-    PC := PC + 1.U
+    when(isJmp) {
+      // Unconditional jump: pc = imm (which is in operand1 of the registerFetch).
+      PC := registerFetch.io.operand1
+    }.elsewhen(isJiz) {
+      // Jump if zero (relative): if op2 = 0 then pc = pc + op1. If not, its a regular increment.
+      when(registerFetch.io.operand2 === 0.U) {
+        PC := PC + registerFetch.io.operand1
+      }.otherwise {
+        PC := PC + 1.U
+      }
+    }.elsewhen(isJaiz) {
+      // Jump absolute if zero: if op2 = 0 then pc = op1
+      when(registerFetch.io.operand2 === 0.U) {
+        PC := registerFetch.io.operand1
+      }.otherwise {
+        PC := PC + 1.U
+      }
+    }.otherwise {
+      // Normal execution: increment PC
+      PC := PC + 1.U
+    }
   }
 
   // Debug port connections for testing

@@ -64,6 +64,18 @@ class HardwareSoftwareTester(dut: Cpu) {
     cycle
   }
   
+  def readRegister(regIndex: Int): Int = {
+    require(regIndex >= 0 && regIndex <= 3, s"Register index must be 0-3, got $regIndex")
+    dut.io.debug.regReadAddr.poke(regIndex.U)
+    dut.io.debug.regReadData.peek().litValue.toInt
+  }
+  
+  def assertRegister(regIndex: Int, expectedValue: Int): Unit = {
+    val actualValue = readRegister(regIndex)
+    assert(actualValue == expectedValue, 
+      s"Register r$regIndex expected $expectedValue but got $actualValue")
+  }
+  
   private def loadProgramToHardware(program: Array[Byte]): Unit = {
     dut.io.loadMode.poke(true.B)
     for ((instruction, address) <- program.zipWithIndex) {

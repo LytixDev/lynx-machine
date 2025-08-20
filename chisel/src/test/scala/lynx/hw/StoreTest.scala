@@ -46,8 +46,7 @@ class StoreTest extends AnyFlatSpec with ChiselScalatestTester {
 
     test(new Cpu()) { dut =>
       val tester = new HardwareSoftwareTester(dut)
-      val cycles = tester.testProgram(program)
-      println(s"Store and load test completed successfully in $cycles cycles")
+      tester.testProgram(program)
     }
   }
 }
