@@ -53,7 +53,7 @@ class Cpu() extends Module {
   registerFetch.io.reg2 := decoder.io.reg2
 
   // Wires from register fetch to the register file  
-  registerFile.io.readAddr1 := registerFetch.io.regReadAddr1
+  registerFile.io.readAddr1 := Mux(io.loadMode, io.debug.regReadAddr, registerFetch.io.regReadAddr1)
   registerFile.io.readAddr2 := registerFetch.io.regReadAddr2
   registerFetch.io.regReadData1 := registerFile.io.readData1
   registerFetch.io.regReadData2 := registerFile.io.readData2

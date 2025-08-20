@@ -9,17 +9,20 @@ class HardwareSoftwareComparator(dut: Cpu, vm: LynxMachine) {
   
   def assertStateEqual(cycle: Int): Unit = {
     // Compare PC
-    val hwPC = dut.io.debug.nextPCOut.peek().litValue.toInt
+    val hwPC = dut.io.debug.currentPCOut.peek().litValue.toInt
     val swPC = vm.pc & 0xFF
     assert(hwPC == swPC, s"Cycle $cycle: PC mismatch - HW: $hwPC, SW: $swPC")
     
-    // Compare all registers
+    // Compare all registers - temporarily enable load mode for debug access
+    val wasInLoadMode = dut.io.loadMode.peek().litToBoolean
+    dut.io.loadMode.poke(true.B)
     for (regIdx <- 0 until 4) {
       dut.io.debug.regReadAddr.poke(regIdx.U)
       val hwReg = dut.io.debug.regReadData.peek().litValue.toInt
       val swReg = vm.registers(regIdx) & 0xFF
       assert(hwReg == swReg, s"Cycle $cycle: Register r$regIdx mismatch - HW: $hwReg, SW: $swReg")
     }
+    dut.io.loadMode.poke(wasInLoadMode.B)
     
     // Compare data memory (sample a few locations for now)
     // val memoryAddressesToCheck = Seq(0, 10, 20, 50, 100, 255)
