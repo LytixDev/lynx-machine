@@ -3,15 +3,16 @@ package lynx.hw
 import chisel3._
 import lynx.sw.Instruction
 
-class Cpu(val program: Seq[Int]) extends Module {
+class Cpu() extends Module {
   val io = IO(new Bundle {
-    val in0 = Input(UInt(8.W))
-    val debugOut = Output(UInt(8.W))
-    
     // Ports for loading instructions before executing.
     val loadMode = Input(Bool())
     val loadAddress = Input(UInt(8.W))
     val loadData = Input(UInt(8.W))
+
+    // These IO outputs are only for testing purposes
+    val decoderOpcodeOut = Output(UInt(4.W))
+    val pcOut = Output(UInt(8.W))
   })
 
   val PC = RegInit(0.U(8.W))
@@ -42,5 +43,10 @@ class Cpu(val program: Seq[Int]) extends Module {
     PC := PC + 1.U
   }
 
-  io.debugOut := decoder.io.opcode
+  // Capture PC before increment for testing
+  val currentPC = RegNext(PC, 0.U(8.W))
+
+  // Outputs for testing
+  io.decoderOpcodeOut := decoder.io.opcode
+  io.pcOut := currentPC
 }

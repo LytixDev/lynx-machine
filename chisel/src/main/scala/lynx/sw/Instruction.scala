@@ -40,4 +40,24 @@ object Instruction {
     Halt, Add, Sub, Ge, Le, Inc, Dec,
     Shift, Ali, Li, Mv, Load, Store, Jmp, Jiz, Jaiz
   )
+  
+  def opcodeToName(opcode: Int): String = opcode match {
+    case 0x0 => "halt"
+    case 0x1 => "add" 
+    case 0x2 => "sub"
+    case 0x3 => "ge"
+    case 0x4 => "le"
+    case 0x5 => "inc"
+    case 0x6 => "dec"
+    case 0x7 => "shift"
+    case 0x8 => "ali"
+    case 0x9 => "li"
+    case 0xA => "mv"
+    case 0xB => "load"
+    case 0xC => "store"
+    case 0xD => "jmp"
+    case 0xE => "jiz"
+    case 0xF => "jaiz"
+    case _ => s"unknown($opcode)"
+  }
 }

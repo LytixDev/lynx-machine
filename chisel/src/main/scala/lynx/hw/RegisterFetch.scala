@@ -1,6 +1,7 @@
 package lynx.hw
 
 import chisel3._
+import chisel3.util._
 import lynx.sw.Instruction
 
 class RegisterFetch() extends Module {
