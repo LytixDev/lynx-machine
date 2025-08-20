@@ -24,7 +24,7 @@ class ExecutionUnit() extends Module {
     Instruction.Shift.opcode.U -> (io.operand1 << io.operand2),
     Instruction.Ali.opcode.U -> (io.operand1 & io.operand2),
     Instruction.Li.opcode.U -> io.operand1,
-    Instruction.Mv.opcode.U -> io.operand2,
+    Instruction.Mv.opcode.U -> io.operand1,
     
     Instruction.Load.opcode.U -> io.operand1,  // Will be overridden by memory read
     Instruction.Store.opcode.U -> io.operand1, // Data to store

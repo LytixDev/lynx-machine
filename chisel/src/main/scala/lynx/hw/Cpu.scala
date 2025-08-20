@@ -10,14 +10,26 @@ class Cpu() extends Module {
     val loadAddress = Input(UInt(8.W))
     val loadData = Input(UInt(8.W))
 
-    // These IO outputs are only for testing purposes
-    val decoderOpcodeOut = Output(UInt(4.W))
-    val pcOut = Output(UInt(8.W))
+    // Debug ports for testing - allow reading register file and data memory
+    val debug = new Bundle {
+      val regReadAddr = Input(UInt(2.W))
+      val regReadData = Output(UInt(8.W))
+      val dataMemReadAddr = Input(UInt(8.W))
+      val dataMemReadData = Output(UInt(8.W))
+      val decoderOpcodeOut = Output(UInt(4.W))
+      val currentPCOut = Output(UInt(8.W))
+      val nextPCOut = Output(UInt(8.W))
+      val executionUnitResult = Output(UInt(8.W))
+    }
   })
 
   val PC = RegInit(0.U(8.W))
   val instructionMemory = Module(new Memory)
   val dataMemory = Module(new Memory)
+  val registerFile = Module(new RegisterFile)
+  val registerFetch = Module(new RegisterFetch)
+  val executionUnit = Module(new ExecutionUnit)
+  val writeback = Module(new Writeback)
 
   // Memory interface: either CPU execution or instruction loading
   when(io.loadMode) {
@@ -33,9 +45,36 @@ class Cpu() extends Module {
   val decoder = Module(new Decoder)
   decoder.io.inst := instructionMemory.io.dataOut
 
+  // Wires from decoder to register fetch
+  // TODO: is the opcode needed?
+  registerFetch.io.opcode := decoder.io.opcode
+  registerFetch.io.imm := decoder.io.imm
+  registerFetch.io.reg1 := decoder.io.reg1
+  registerFetch.io.reg2 := decoder.io.reg2
+
+  // Wires from register fetch to the register file  
+  registerFile.io.readAddr1 := registerFetch.io.regReadAddr1
+  registerFile.io.readAddr2 := registerFetch.io.regReadAddr2
+  registerFetch.io.regReadData1 := registerFile.io.readData1
+  registerFetch.io.regReadData2 := registerFile.io.readData2
+
+  // Wires to the execution unit
+  executionUnit.io.opcode := decoder.io.opcode
+  executionUnit.io.operand1 := registerFetch.io.operand1
+  executionUnit.io.operand2 := registerFetch.io.operand2
+
+  // Wire execution unit to writeback
+  writeback.io.opcode := decoder.io.opcode
+  writeback.io.reg1 := decoder.io.reg1
+  writeback.io.executionResult := executionUnit.io.result
+
+  // Wire writeback to register file
+  registerFile.io.writeAddr := writeback.io.regWriteAddr
+  registerFile.io.writeData := writeback.io.regWriteData
+  registerFile.io.writeEnable := writeback.io.regWriteEnable && !io.loadMode
 
   dataMemory.io.writeEnable := (decoder.io.opcode === Instruction.Store.opcode.U) && !io.loadMode
-  dataMemory.io.address := 0.U  // Will be connected to execution unit
+  dataMemory.io.address := Mux(io.loadMode, io.debug.dataMemReadAddr, 0.U)  // Use debug address when in load mode, TODO: connect to execution unit
   dataMemory.io.dataIn := 0.U   // Will be connected to execution unit
 
   // TODO: branching
@@ -46,7 +85,11 @@ class Cpu() extends Module {
   // Capture PC before increment for testing
   val currentPC = RegNext(PC, 0.U(8.W))
 
-  // Outputs for testing
-  io.decoderOpcodeOut := decoder.io.opcode
-  io.pcOut := currentPC
+  // Debug port connections for testing
+  io.debug.regReadData := registerFile.io.readData1
+  io.debug.dataMemReadData := dataMemory.io.dataOut
+  io.debug.decoderOpcodeOut := decoder.io.opcode
+  io.debug.currentPCOut := currentPC
+  io.debug.nextPCOut := PC
+  io.debug.executionUnitResult := executionUnit.io.result
 }

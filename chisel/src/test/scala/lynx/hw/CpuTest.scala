@@ -19,7 +19,7 @@ class CpuTest extends AnyFlatSpec with ChiselScalatestTester {
 
     val expectedCycles = 6
 
-    test(new Cpu()) { dut =>
+    test(new Cpu()).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       // Load the program
       dut.io.loadMode.poke(true.B)
       for ((instruction, address) <- program.zipWithIndex) {
@@ -36,11 +36,11 @@ class CpuTest extends AnyFlatSpec with ChiselScalatestTester {
       var cycles = 1
 
       // Run until halt
-      while(dut.io.decoderOpcodeOut.peek().litValue != Instruction.Halt.opcode && cycles < expectedCycles + 10) {
-        val pc = dut.io.pcOut.peek().litValue.toInt
+      while(dut.io.debug.decoderOpcodeOut.peek().litValue != Instruction.Halt.opcode && cycles < expectedCycles + 10) {
+        val pc = dut.io.debug.currentPCOut.peek().litValue.toInt
         val expectedInstruction = program(pc)
         val expectedOpcode = (expectedInstruction >> 4) & 0xF
-        val actualOpcode = dut.io.decoderOpcodeOut.peek().litValue
+        val actualOpcode = dut.io.debug.decoderOpcodeOut.peek().litValue
         val expectedName = Instruction.opcodeToName(expectedOpcode.toInt)
         val actualName = Instruction.opcodeToName(actualOpcode.toInt)
         assert(actualOpcode == expectedOpcode, s"At PC=$pc: expected opcode $expectedName ($expectedOpcode), got $actualName ($actualOpcode)")
@@ -50,6 +50,12 @@ class CpuTest extends AnyFlatSpec with ChiselScalatestTester {
       }
 
       assert(cycles == expectedCycles, s"Expected $expectedCycles cycles, but got $cycles")
+      
+      // Check final result: r0 should contain 8 (5 + 3)
+      // Use register file read port to peek r0
+      // dut.registerFile.io.readAddr1.poke(0.U) // Read r0
+      // val r0Value = dut.registerFile.io.readData1.peek().litValue
+      // assert(r0Value == 8, s"Expected r0 to be 8, but got $r0Value")
     }
   }
 }
