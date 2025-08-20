@@ -1,7 +1,5 @@
 # The Lynx Abstract Machine Specification
 
->This document is work in progress!
-
 The Lynx Abstract machine is a specification for a "true" 8-bit machine. By "true" 8-bit we informally mean that all components from the registers, data bus, address bus, ALU and to the instruction set are exactly 8 bits wide. It therefore follows that the Lynx Abstract Machine is only able to perform 8-bit arithmetic while being able to address just 256 bytes of memory. Lynx is a primitive machine able to achieve simple computations. The motivation behind the project is to explore what a machine with the previously mentioned constraints would look like and experiment with the possible computational problems it is able to express.
 
 The following is a somewhat informal yet mostly exhaustive specification of the Lynx Abstract Machine. 
@@ -50,12 +48,15 @@ When an immediate is used as the operand it takes up the entire four bit space o
 | le       | 0100   | Reg Reg      | r0 = op1 < op2 (1 if true else 0) |
 | inc      | 0101   | Reg          | op1 = op1 + 1                     |
 | dec      | 0110   | Reg          | op1 = op1 - 1                     |
-| shift    | 0111   | Imm          | r0 = r0 << imm with some nuance   |
+| shift    | 0111   | Imm          | r0 = r0 << imm                    |
 | ali      | 1000   | Imm          | r0 = r0 & imm                     |
 | li       | 1001   | Imm          | r0 = imm                          |
 | mv       | 1010   | Reg Reg      | op1 = op2                         |
-| load     | 1011   | Reg Reg      | op1 = mem$op2$                    |
-| store    | 1100   | Reg Reg      | mem$op2$ = op1                    |
+| load     | 1011   | Reg Reg      | op1 = mem\[op2\]                  |
+| store    | 1100   | Reg Reg      | mem\[op2\] = op1                  |
 | jmp      | 1101   | Imm          | pc = imm                          |
 | jiz      | 1110   | Reg Reg      | if op2 = 0 then pc = pc + op1     |
 | jaiz     | 1111   | Reg Reg      | if op2 = 0 then pc = op1          |
+
+
+For the shift, the immediate must be sign extended to 8 bits.
